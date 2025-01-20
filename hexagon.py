@@ -7,4 +7,3 @@ class Hexagon:
     #Hexagon class#
     radius: float
     position: tuple(float, float)
-    
