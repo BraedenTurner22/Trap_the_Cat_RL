@@ -23,16 +23,15 @@ from AStar import AStar  # does the actual pathfinding
 
 # Settings =================================================
 
-map_size = Size(10, 11)  # X/Y dimensions of map
-start =  None # path start point (set to None for random)
-end = None  # path end point (set to None for random)
+map_size = Size(11, 11)  # X/Y dimensions of map
+start =  None # path start point (set to None for random))
 graphic_size = 60  # pixel size of each rendered node
 background_color = pygame.Color(32, 32, 32)
 
 # The percentage chance that any given node in the map
 # will be a barrier when the map is randomly generated
 # (barriers are not traversable)
-barrier_percentage = .15
+barrier_percentage = .20
 
 # Init =====================================================
 
@@ -43,7 +42,9 @@ renderer = Renderer(graphic_size)
 
 # Get the size of the map in pixels for setting the
 # display size
-map_size_pixels = renderer.get_map_size_pixels(map_size)
+fixed_width = 550
+fixed_height = 725
+map_size_pixels = (fixed_width, fixed_height)
 
 screen = pygame.display.set_mode(map_size_pixels, pygame.RESIZABLE)
 screen.fill(background_color)
@@ -51,11 +52,11 @@ screen.fill(background_color)
 # Create a randomly generated Node_Map map
 node_map = Node_Map(map_size,
                     start,
-                    end,
+                    edge_positions,
                     barrier_percentage)
 
 #Set the start point explicitly
-node_map.set_start((5, 5))
+node_map.set_cat((5, 5))
 
 astar = AStar()
 
@@ -64,8 +65,8 @@ astar = AStar()
 # render map up-front and only re-render
 # when something changes
 path = astar.find_path(node_map.get_node_dict(),
-                       node_map.start_pos,
-                       node_map.end_pos,
+                       node_map.cat_position,
+                       node_map.edge_position,
                        node_map.adjacency_function)
 renderer.render(node_map, path, screen)
 
@@ -102,13 +103,13 @@ while True:
             node_map.reset_map()
 
             path = astar.find_path(node_map.get_node_dict(),
-                                   node_map.start_pos,
-                                   node_map.end_pos,
+                                   node_map.cat_position,
+                                   node_map.edge_position,
                                    node_map.adjacency_function)
 
         # Adjust the display on user-resize
         elif event.type == VIDEORESIZE:
-            screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
+            screen = pygame.display.set_mode(event.size)
             screen.fill(background_color)
 
         # Display the map

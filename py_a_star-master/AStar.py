@@ -53,7 +53,7 @@ class AStar:
         # or if no path is found (open_dict becomes empty)
         # TODO: this looks like the loop runs an extra time since the
         # current_node is being checked and then reset.
-        while not current_node.is_end():
+        while not current_node.is_edge():
 
             # If no path is found, exit
             if len(open) == 0:
@@ -75,7 +75,7 @@ class AStar:
                     adjacent_node = nodes[adjacent_pos]
 
                     # If it's not a wall and not closed
-                    if (adjacent_node.get_property() != p.BARRIER and
+                    if (adjacent_node.get_property() != p.WALL and
                             adjacent_pos not in closed):
                         # closed.has_key(adjacent_pos) == False):
 

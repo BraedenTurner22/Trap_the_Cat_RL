@@ -24,18 +24,6 @@ class Renderer:
         self.path_node_gfx = create_graphic(self.PATH_COLOR)
         self.barrier_node_gfx = create_graphic(self.BARRIER_COLOR)
 
-    def get_map_size_pixels(self, map_size):
-
-        g = self.graphic_size
-
-        # Width and height in pixels
-        w_pix = h_pix = 0
-
-        w_pix = map_size.width * g
-        h_pix = map_size.height * g
-
-        return w_pix, h_pix
-
     def create_hex_gfx(self, color):
         hex_size = self.graphic_size
 
@@ -88,14 +76,19 @@ class Renderer:
         m_height = node_map.size.height
         g = self.graphic_size  # hex size
 
+        grid_padding_x = 20 #Horizontal padding
+        grid_padding_y = 20 #Vertical padding
+        grid_padding_bottom = 80  # Extra bottom padding to prevent cut-off
+    
         magenta = pygame.Color(255, 0, 255)
 
         p = Node.Property
 
         # Map graphics buffer; account for extra
         # space required by staggered hexagons
-        h = int(((m_height + 1) * g) - (0.5 * g))
-        w = int(m_width * g * 0.75) - (0.25 * g) 
+        h = int(m_height * g) + grid_padding_bottom
+        w = int(m_width * g) + grid_padding_x
+
         b = pygame.Surface((w, h))
 
         # Magenta is the transparency color
@@ -104,8 +97,8 @@ class Renderer:
         for y in range(0, m_height):
             for x in range(0, m_width):
 
-                x_blit = (x * g)
-                y_blit = (y * g)
+                x_blit = (x * g) + grid_padding_x
+                y_blit = (y * g) + grid_padding_y
 
                 # Offset even rows downward
                 if x % 2 != 0:
@@ -121,15 +114,15 @@ class Renderer:
 
                 if (x, y) in path:
                     b.blit(self.path_node_gfx, (x_blit, y_blit))
-                elif node_property == p.START:
+                elif node_property == p.CAT:
                     b.blit(self.start_node_gfx, (x_blit, y_blit))
-                elif node_property == p.END:
+                elif node_property == p.EDGE:
                     b.blit(self.end_node_gfx, (x_blit, y_blit))
-                elif node_property == p.BARRIER:
+                elif node_property == p.WALL:
                     b.blit(self.barrier_node_gfx, (x_blit, y_blit))
                 else:
                     b.blit(self.empty_node_gfx, (x_blit, y_blit))
 
         # Show the screen buffer
-        screen.blit(b, (0, 0))
+        screen.blit(b, (0,0))
         pygame.display.flip()

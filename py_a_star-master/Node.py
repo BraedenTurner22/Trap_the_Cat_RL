@@ -4,9 +4,9 @@ class Node:
     class Property:
         # Possible property values for a node
         NOTHING = 0
-        BARRIER = 1
-        START = 2
-        END = 3
+        WALL = 1
+        CAT = 2
+        EDGE = 3
         PATH = 4
 
     """
@@ -38,14 +38,14 @@ class Node:
         self.f = 0
         self.terrain_score = terrain_score
 
-    def is_barrier(self):
-        return self.node_property == self.Node_Property.BARRIER
+    def is_wall(self):
+        return self.node_property == self.Property.WALL
 
-    def is_end(self):
-        return self.node_property == self.Property.END
+    def is_edge(self):
+        return self.node_property == self.Property.EDGE
 
-    def is_start(self):
-        return self.node_property == self.Property.START
+    def is_cat(self):
+        return self.node_property == self.Property.CAT
 
     def set_property(self, node_property):
         self.node_property = node_property

@@ -11,10 +11,8 @@ class Node_Map:
     # the tuple is an x/y coordinate
     node_map = {}
 
-    start_pos = None
-    end_pos = None
-    random_start = False
-    random_end = False
+    cat_position = None
+    edge_positions = None
 
     # size is a Size object
     # start and end are tuples
@@ -22,25 +20,15 @@ class Node_Map:
     def __init__(self,
                  size,
                  start,
-                 end,
+                 edges,
                  barrier_percent):
         self.size = size
 
         assert (0.0 <= barrier_percent <= 1.0)
         # assert (terrain_min <= terrain_max)
 
-        if start is None:
-            self.random_start = True
-        else:
-            assert (self.is_within_bounds(start))
-
-        if end is None:
-            self.random_end = True
-        else:
-            assert (self.is_within_bounds(end))
-
-        self.start_pos = start
-        self.end_pos = end
+        self.cat_position = start
+        self.edge_positions = edges
         self.barrier_percent = barrier_percent
         self.adjacency_function = self.get_adjacent_hex_positions
 
@@ -69,31 +57,44 @@ class Node_Map:
 
     def generate_random_map(self):
 
-        # TODO: bug here. Start and end should never be the same
-        # position. Make sure they're different
-        if self.random_start:
-            self.start_pos = self.get_random_position()
-        if self.random_end:
-            self.end_pos = self.get_random_position()
-
         p = Node.Property
 
+        # First, populate the entire map with default nodes
+        for y in range(0, self.size.height):
+            for x in range(0, self.size.width):
+                self.node_map[(x, y)] = Node(p.NOTHING)
+
+        # Assign random positions for cat and edge
+        if self.random_start:
+            self.cat_position = self.get_random_position()
+        if self.random_end:
+            self.edge_positions = self.get_random_position()
+
+        # Ensure cat and edge are valid and distinct
+        while self.cat_position == self.edge_positions or self.node_map[self.cat_position].get_property() == Node.Property.WALL:
+            self.cat_position = self.get_random_position()
+        while self.edge_positions == self.cat_position or self.node_map[self.edge_positions].get_property() == Node.Property.WALL:
+            self.edge_positions = self.get_random_position()
+
+
+        p = Node.Property
+ 
         for y in range(0, self.size.height):
             for x in range(0, self.size.width):
 
-                if self.start_pos == (x, y):
-                    node = Node(p.START)
+                if self.cat_position == (x, y):
+                    node = Node(p.CAT)
                     self.node_map[(x, y)] = node
 
-                elif self.end_pos == (x, y):
-                    node = Node(p.END)
+                elif self.edge_positions == (x, y):
+                    node = Node(p.EDGE)
                     self.node_map[(x, y)] = node
 
                 else:
                     # Determine whether this hex
                     # is a barrier or not
                     if randint(0, 100) < (self.barrier_percent * 100):
-                        node = Node(p.BARRIER)
+                        node = Node(p.WALL)
                         self.node_map[(x, y)] = node
                     else:
                         # If the node is not a barrier, determine
@@ -113,43 +114,67 @@ class Node_Map:
 
                         self.node_map[(x, y)] = node
 
-    def set_start(self, pos_tuple):
+    def set_cat(self, pos_tuple):
         # Remove previous start property
-        node = self.node_map[self.start_pos]
+        node = self.node_map[self.cat_position]
         node.set_property(Node.Property.NOTHING)
 
         # New start
         node = self.node_map[pos_tuple]
-        node.set_property(Node.Property.START)
-        self.start_pos = pos_tuple
+        node.set_property(Node.Property.CAT)
+        self.cat_position = pos_tuple
 
-    def set_end(self, pos_tuple):
+    def set_edge(self, pos_tuple):
 
-        # Remove previous end property
-        node = self.node_map[self.end_pos]
+        # Remove previous edge property
+        node = self.node_map[self.edge_positions]
         node.set_property(Node.Property.NOTHING)
 
         # New end
         node = self.node_map[pos_tuple]
-        node.set_property(Node.Property.END)
-        self.end_pos = pos_tuple
+        node.set_property(Node.Property.EDGE)
+        self.edge_positions = pos_tuple
 
     def move(self, direction):
         d = Direction  # from Utilities module
-        x = self.start_pos[0]
-        y = self.start_pos[1]
-        new_pos = None
-        if direction == d.UP:
-            new_pos = (x, y - 1)
-        elif direction == d.DOWN:
-            new_pos = (x, y + 1)
-        elif direction == d.LEFT:
-            new_pos = (x - 1, y)
-        elif direction == d.RIGHT:
-            new_pos = (x + 1, y)
+        x = self.cat_position[0]
+        y = self.cat_position[1]
 
-        if self.is_valid_move(new_pos):
-            self.set_start(new_pos)
+        #Allows for y-axis movement if normal x-path has a wall but hexagons are still connected
+        left_right_decider = None
+        left_right_decider = y - 1 if x % 2 == 0 else y + 1
+
+        cats_new_position = (x ,y)
+
+        if direction == d.UP:
+            if self.is_valid_move((x, y - 1)):
+                cats_new_position = (x, y - 1)
+            else:
+                cats_new_position = (x, y)
+
+        elif direction == d.DOWN:
+            if self.is_valid_move((x, y + 1)):
+                cats_new_position = (x, y + 1)
+            else:
+                cats_new_position = (x, y)
+
+        elif direction == d.LEFT:
+            if self.is_valid_move((x - 1, y)):
+                cats_new_position = (x - 1, y)
+            elif self.is_valid_move((x - 1, left_right_decider)):
+                cats_new_position = (x - 1, left_right_decider)
+            else:
+                cats_new_position = (x, y)
+            
+        elif direction == d.RIGHT:
+            if self.is_valid_move((x + 1, y)):
+                cats_new_position = (x + 1, y)
+            elif self.is_valid_move((x + 1, left_right_decider)):
+                cats_new_position = (x + 1, left_right_decider)
+            else:
+                cats_new_position = (x, y)
+        
+        self.set_cat(cats_new_position)
 
     ''' Checks to see whether the new position is within
     the confines of the map and is not a barrier
@@ -167,9 +192,9 @@ class Node_Map:
         if not self.is_within_bounds(new_pos):
             return False
 
-        # Check to see if the new position is a barrier
+        # Check to see if the new position is a wall
         node = self.node_map[new_pos]
-        if node.get_property() in (np.BARRIER, np.END):
+        if node.get_property() in (np.WALL, np.EDGE):
             return False
 
         return True
