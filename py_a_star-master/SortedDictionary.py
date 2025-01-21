@@ -1,3 +1,4 @@
+#All credit to goes to Thomas Rush, https://github.com/ThomasRush/py_a_star.git
 
 class SortedDictionary(dict):
     """Dictionary object that allows user-defined sorting on keys or values.

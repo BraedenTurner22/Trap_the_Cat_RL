@@ -1,3 +1,5 @@
+#All credit to goes to Thomas Rush, https://github.com/ThomasRush/py_a_star.git
+
 class Node:
     class Property:
         # Possible property values for a node
@@ -15,13 +17,12 @@ class Node:
         the most ideal path.
     """
     node_property = None  # is this node the start/end/barrier
-    g = None  # The current path score for this node
-    h = None  # The heuristic guess score for the rest of the path
-    f = None  # Combined g and f scores
+    g = None  # The current path score for this node (start node to current node)
+    h = None  # The heuristic guess score for the rest of the path (current node to goal node)
+    f = None  # g + f
     parent = None  # Reference to the previous node's position (tuple)
 
     terrain_score = None  # A number between 0.1 and 1.0 representing
-
     # how difficult it is to traverse the node
     # 0.1 is low difficulty, 1.0 is untraversable.
 

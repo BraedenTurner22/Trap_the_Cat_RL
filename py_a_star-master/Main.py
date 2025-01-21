@@ -1,3 +1,5 @@
+#All credit to goes to Thomas Rush, https://github.com/ThomasRush/py_a_star.git
+
 """
 Implementation of A* using the "Manhattan" heuristic on hex or grid maps.
 Uses Pygame for rendering to screen.
@@ -21,24 +23,23 @@ from AStar import AStar  # does the actual pathfinding
 
 # Settings =================================================
 
-map_type = Node_Map.Map_Type.HEX  # Possible options = HEX / GRID
-map_size = Size(25, 15)  # X/Y dimensions of map
-start = None  # path start point (set to None for random)
+map_size = Size(10, 11)  # X/Y dimensions of map
+start =  None # path start point (set to None for random)
 end = None  # path end point (set to None for random)
-graphic_size = 40  # pixel size of each rendered node
+graphic_size = 60  # pixel size of each rendered node
 background_color = pygame.Color(32, 32, 32)
 
 # The percentage chance that any given node in the map
 # will be a barrier when the map is randomly generated
 # (barriers are not traversable)
-barrier_percentage = .25
+barrier_percentage = .15
 
 # Init =====================================================
 
 pygame.init()
 
 # Handle user-specified automatic display sizing
-renderer = Renderer(graphic_size, map_type)
+renderer = Renderer(graphic_size)
 
 # Get the size of the map in pixels for setting the
 # display size
@@ -51,8 +52,11 @@ screen.fill(background_color)
 node_map = Node_Map(map_size,
                     start,
                     end,
-                    barrier_percentage,
-                    map_type)
+                    barrier_percentage)
+
+#Set the start point explicitly
+node_map.set_start((5, 5))
+
 astar = AStar()
 
 # Main Loop ================================================

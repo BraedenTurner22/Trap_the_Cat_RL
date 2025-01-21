@@ -1,12 +1,11 @@
+#All credit to goes to Thomas Rush, https://github.com/ThomasRush/py_a_star.git
+
 from random import randint
 from Node import Node
 from Utilities import *
 
 
 class Node_Map:
-    class Map_Type:
-        GRID = 0
-        HEX = 1
 
     # map is a dictionary of tuple/Node objects.
     # the tuple is an x/y coordinate
@@ -14,7 +13,6 @@ class Node_Map:
 
     start_pos = None
     end_pos = None
-    map_type = None
     random_start = False
     random_end = False
 
@@ -25,8 +23,7 @@ class Node_Map:
                  size,
                  start,
                  end,
-                 barrier_percent,
-                 map_type):
+                 barrier_percent):
         self.size = size
 
         assert (0.0 <= barrier_percent <= 1.0)
@@ -45,16 +42,7 @@ class Node_Map:
         self.start_pos = start
         self.end_pos = end
         self.barrier_percent = barrier_percent
-        self.map_type = map_type
-
-        # Node_Map provides the adjacency function to
-        # AStar. This allows us to use different types of maps
-        # without changing the underlying AStar implementation
-        if map_type == Node_Map.Map_Type.GRID:
-            self.adjacency_function = self.get_adjacent_grid_positions
-
-        if map_type == Node_Map.Map_Type.HEX:
-            self.adjacency_function = self.get_adjacent_hex_positions
+        self.adjacency_function = self.get_adjacent_hex_positions
 
         self.generate_random_map()
 
@@ -139,10 +127,10 @@ class Node_Map:
 
         # Remove previous end property
         node = self.node_map[self.end_pos]
-        node.set_property(Node_Property.NOTHING)
+        node.set_property(Node.Property.NOTHING)
 
         # New end
-        node = self.node_map[pos.as_tuple()]
+        node = self.node_map[pos_tuple]
         node.set_property(Node.Property.END)
         self.end_pos = pos_tuple
 

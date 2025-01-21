@@ -1,6 +1,7 @@
+#All credit to goes to Thomas Rush, https://github.com/ThomasRush/py_a_star.git
+
 import pygame
 from Node import Node
-from Node_Map import Node_Map
 
 class Renderer:
     START_HEX_COLOR = pygame.Color(0, 255, 0)
@@ -8,17 +9,13 @@ class Renderer:
     PATH_COLOR = pygame.Color(192, 192, 0)
     BARRIER_COLOR = pygame.Color(0, 0, 255)
 
-    def __init__(self, graphic_size, map_type):
+    def __init__(self, graphic_size):
         self.graphic_size = graphic_size
-        self.map_type = map_type
 
-        if map_type == Node_Map.Map_Type.GRID:
-            create_graphic = self.create_square_gfx
-            self.render = self.render_square_map
-        elif map_type == Node_Map.Map_Type.HEX:
+        try:
             create_graphic = self.create_hex_gfx
             self.render = self.render_hex_map
-        else:
+        except:
             raise Exception("Map type not found")
 
         self.empty_node_gfx = create_graphic(None)
@@ -29,53 +26,15 @@ class Renderer:
 
     def get_map_size_pixels(self, map_size):
 
-        map_type = self.map_type
         g = self.graphic_size
-
-        # Width and height in nodex across
-        w = map_size.width
-        h = map_size.height
 
         # Width and height in pixels
         w_pix = h_pix = 0
 
-        if map_type == Node_Map.Map_Type.HEX:
-            w_pix = int((w * g * 0.75) - (0.25 * g))
-            h_pix = int(((h + 1) * g) - (0.5 * g)) + 1
-        elif map_type == Node_Map.Map_Type.GRID:
-            w_pix = map_size.width * g
-            h_pix = map_size.height * g
+        w_pix = map_size.width * g
+        h_pix = map_size.height * g
 
         return w_pix, h_pix
-
-    def create_square_gfx(self, color):
-
-        square_size = self.graphic_size
-        s = pygame.Surface((square_size, square_size))
-        white = pygame.Color(255, 255, 255, 0)
-        magenta = pygame.Color(255, 0, 255)
-        s.fill(magenta)
-
-        top_left = (0, 0)
-        top_right = (square_size, 0)
-        bottom_right = (square_size, square_size)
-        bottom_left = (0, square_size)
-
-        # fill region
-        if color is not None:
-            points = [top_left, top_right, bottom_right, bottom_left]
-
-            pygame.draw.polygon(s, color, points)
-
-        # Draw outlines
-        pygame.draw.line(s, white, top_left, top_right, 1)
-        pygame.draw.line(s, white, top_right, bottom_right, 1)
-        pygame.draw.line(s, white, bottom_right, bottom_left, 1)
-        pygame.draw.line(s, white, bottom_left, top_left, 1)
-
-        # Set color key to magenta for transparency
-        s.set_colorkey(magenta)
-        return s
 
     def create_hex_gfx(self, color):
         hex_size = self.graphic_size
@@ -122,42 +81,6 @@ class Renderer:
 
         return s
 
-    def render_square_map(self, node_map, path, screen):
-
-        # Get some short names to work with
-        m_width = node_map.size.width
-        m_height = node_map.size.height
-        g = self.graphic_size  # hex size
-
-        magenta = pygame.Color(255, 0, 255)
-
-        p = Node.Property
-
-        b = pygame.Surface((m_width * g, m_height * g))
-        b.set_colorkey(magenta)
-
-        for y in range(0, m_height):
-            for x in range(0, m_width):
-                x_blit = x * g
-                y_blit = y * g
-
-                node_property = node_map.get_property_at((x, y))
-
-                if (x, y) in path:
-                    b.blit(self.path_node_gfx, (x_blit, y_blit))
-                elif node_property == p.START:
-                    b.blit(self.start_node_gfx, (x_blit, y_blit))
-                elif node_property == p.END:
-                    b.blit(self.end_node_gfx, (x_blit, y_blit))
-                elif node_property == p.BARRIER:
-                    b.blit(self.barrier_node_gfx, (x_blit, y_blit))
-                else:
-                    b.blit(self.empty_node_gfx, (x_blit, y_blit))
-
-        # Show the screen buffer
-        screen.blit(b, (0, 0))
-        pygame.display.flip()
-
     def render_hex_map(self, node_map, path, screen):
 
         # Get some short names to work with
@@ -171,8 +94,8 @@ class Renderer:
 
         # Map graphics buffer; account for extra
         # space required by staggered hexagons
-        h = int(((m_height + 1) * g) - (0.5 * g)) + 1
-        w = int(m_width * g * 0.75) - (0.25 * g)
+        h = int(((m_height + 1) * g) - (0.5 * g))
+        w = int(m_width * g * 0.75) - (0.25 * g) 
         b = pygame.Surface((w, h))
 
         # Magenta is the transparency color

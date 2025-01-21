@@ -1,3 +1,5 @@
+#All credit to goes to Thomas Rush, https://github.com/ThomasRush/py_a_star.git
+
 from Node import Node
 from SortedDictionary import SortedDictionary
 
