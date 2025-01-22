@@ -20,35 +20,48 @@ class Node:
     g = None  # The current path score for this node (start node to current node)
     h = None  # The heuristic guess score for the rest of the path (current node to goal node)
     f = None  # g + f
-    parent = None  # Reference to the previous node's position (tuple)
+    parent_coordinates = None  # Reference to the previous node's position (tuple)
 
     terrain_score = None  # A number between 0.1 and 1.0 representing
     # how difficult it is to traverse the node
     # 0.1 is low difficulty, 1.0 is untraversable.
 
-    def __init__(self, val, terrain_score=1):
+
+
+    def __init__(self, node_property: Property, terrain_score=1):
         # A node HAS to have some terrain score or
         # else A* will not work.
         assert (terrain_score >= 1)
 
-        self.node_property = val
-        self.parent = None
+
+        self.node_property = node_property
+        self.parent_coordinates = None
         self.g = 0
         self.h = 0
         self.f = 0
         self.terrain_score = terrain_score
 
+
+
     def is_wall(self):
         return self.node_property == self.Property.WALL
+
+
 
     def is_edge(self):
         return self.node_property == self.Property.EDGE
 
+
+
     def is_cat(self):
         return self.node_property == self.Property.CAT
 
+
+
     def set_property(self, node_property):
         self.node_property = node_property
+
+
 
     def set_parent_and_score(self, parent_pos, parent_g, end_pos):
         self.set_parent(parent_pos)
@@ -64,23 +77,37 @@ class Node:
         # Set the new F score
         self.f = self.g + self.h
 
+
+
     def set_parent(self, parent_pos):
-        self.parent = parent_pos
+        self.parent_coordinates = parent_pos
+
+
 
     def has_better_f_score(self, score):
         return self.get_f_score < score
 
+
+
     def get_property(self):
         return self.node_property
+
+
 
     def get_terrain_score(self):
         return self.terrain_score
 
+
+
     def get_f_score(self):
         return self.f
 
+
+
     def get_g_score(self):
         return self.g
+
+
 
     def __str__(self):
         return "Property: {0}, g: {1}, h: {2}, Terrain: {3}", (

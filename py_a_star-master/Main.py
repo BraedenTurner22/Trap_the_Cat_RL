@@ -13,7 +13,7 @@ Change settings to switch between hex/grid maps and map sizes.
 """
 # Imports ==================================================
 
-import sys  # gracefully handle exits
+import sys  # handle exits
 from Utilities import *  # helper classes and const definitions
 from Renderer import Renderer  # draws graphics
 from Node_Map import Node_Map  # holds map data
@@ -24,13 +24,11 @@ from AStar import AStar  # does the actual pathfinding
 # Settings =================================================
 
 map_size = Size(11, 11)  # X/Y dimensions of map
-start =  None # path start point (set to None for random))
-graphic_size = 60  # pixel size of each rendered node
+cat_starting_coords =  (5, 5) # cat start
+node_pixel_size = 60  # pixel size of each rendered node
 background_color = pygame.Color(32, 32, 32)
 
-# The percentage chance that any given node in the map
-# will be a barrier when the map is randomly generated
-# (barriers are not traversable)
+# The percentage chance that any given node in the map will be a wall
 barrier_percentage = .20
 
 # Init =====================================================
@@ -38,7 +36,7 @@ barrier_percentage = .20
 pygame.init()
 
 # Handle user-specified automatic display sizing
-renderer = Renderer(graphic_size)
+renderer = Renderer(node_pixel_size)
 
 # Get the size of the map in pixels for setting the
 # display size
@@ -51,12 +49,8 @@ screen.fill(background_color)
 
 # Create a randomly generated Node_Map map
 node_map = Node_Map(map_size,
-                    start,
-                    edge_positions,
+                    cat_starting_coords,
                     barrier_percentage)
-
-#Set the start point explicitly
-node_map.set_cat((5, 5))
 
 astar = AStar()
 
@@ -64,10 +58,12 @@ astar = AStar()
 
 # render map up-front and only re-render
 # when something changes
+print("cat_coords before calling find_path:", node_map.get_cat_coords())  # Debug print
 path = astar.find_path(node_map.get_node_dict(),
-                       node_map.cat_position,
-                       node_map.edge_position,
-                       node_map.adjacency_function)
+                       node_map.get_cat_coords(),
+                       node_map.get_all_edge_node_coords(),
+                       node_map.get_adjacent_positions(cat_starting_coords))
+
 renderer.render(node_map, path, screen)
 
 while True:
@@ -103,9 +99,8 @@ while True:
             node_map.reset_map()
 
             path = astar.find_path(node_map.get_node_dict(),
-                                   node_map.cat_position,
-                                   node_map.edge_position,
-                                   node_map.adjacency_function)
+                                   node_map.cat_node,
+                                   node_map.edge_nodes)
 
         # Adjust the display on user-resize
         elif event.type == VIDEORESIZE:

@@ -2,7 +2,7 @@
 
 from Node import Node
 from SortedDictionary import SortedDictionary
-
+from Node_Map import Node_Map
 
 class AStar:
     """ Class determines the best path between a starting and ending point
@@ -19,21 +19,31 @@ class AStar:
 
     """
 
+
+
     def __init__(self):
         def sort_function(item):
             return item[1].f
 
         self.sort_function = sort_function
 
-    def find_path(self, nodes, start_pos, end_pos, adjacency_function):
+
+
+    def find_path(self, nodes, cat_position, edge_positions, adjacency_function):
         """
         Applies the A* algorithm to determine a path, given the dictionary
         of nodes provided in the constructor.
 
-        Returns a List of tuple coordinates that is the resulting path.
-        If no path was found, returns an empty List
-        """
+        Arguments:
+        - nodes: Dictionary of all nodes in the grid.
+        - cat_position: The starting position (x, y) of the cat.
+        - adjacency_function: Function to get adjacent positions for a given node.
 
+        Returns:
+        A list of tuple coordinates representing the resulting path. 
+        If no path was found, returns an empty list.
+        """
+    
         open = SortedDictionary(sort_function=self.sort_function)
         closed = SortedDictionary()
 
@@ -43,16 +53,28 @@ class AStar:
         # node_at = self.get_node_at
         p = Node.Property
 
-        # Add the starting node to the open nodes
-        # and mark it as the lowest score and the current node
-        current_pos = start_pos
+        # Determine closest edge node to starting position
+        closest_edge = None
+        closest_distance = float('inf')
+
+        for edge in edge_positions:
+            # Manhattan distance from cat_position to edge
+            print("cat_position before calculation:", cat_position)
+            h = abs(cat_position[0] - edge[0] + abs(cat_position[1]) - edge[1])
+            if h < closest_distance:
+                closest_distance = h
+                closest_edge = edge
+
+        # If no edge is found, return an empty path
+        if closest_edge is None:
+            return []
+
+        # Initialize starting node
+        current_pos = cat_position
         current_node = nodes[current_pos]  # node_at(current_pos)
         open[current_pos] = current_node
 
-        # Loop ends when either a path is found (current node is the END node)
-        # or if no path is found (open_dict becomes empty)
-        # TODO: this looks like the loop runs an extra time since the
-        # current_node is being checked and then reset.
+        # Main A* loop
         while not current_node.is_edge():
 
             # If no path is found, exit
@@ -65,11 +87,10 @@ class AStar:
 
                 adjacent_positions = get_adjacent_positions(current_pos)
 
-                # We're finished with the current node
-                # mark it closed
+                # Mark current node as closed
                 closed[current_pos] = None
 
-                # Make sure they are not barriers, and not in the closed list
+                # Make sure they are not walls, and not in the closed list
                 for adjacent_pos in adjacent_positions:
 
                     adjacent_node = nodes[adjacent_pos]
@@ -77,38 +98,22 @@ class AStar:
                     # If it's not a wall and not closed
                     if (adjacent_node.get_property() != p.WALL and
                             adjacent_pos not in closed):
-                        # closed.has_key(adjacent_pos) == False):
 
-                        # If it's already in the open list, see if this path
-                        # is a better way of getting to the end. If so, make this
-                        # path the way by setting its parent
+                        # If already in the open list, check if this path is better
                         if adjacent_pos in open:
+                            if adjacent_node.g > current_node.g + adjacent_node.get_terrain_score():
+                                adjacent_node.set_parent_and_score(current_pos, current_node.g, closest_edge)
 
-                            # If the adjacent node's "g" score is greater than
-                            # the current node's "g" score plus the movement score,
-                            # append the adjacent node to the open list
-                            if (adjacent_node.g >
-                                    current_node.g + adjacent_node.terrain_score):
-                                adjacent_node.set_parent_and_score(current_pos,
-                                                                   current_node.g,
-                                                                   end_pos)
-
-                                # If the current node's f-score is lower than the
-                                # current lowest f-score, set it
                                 open[adjacent_pos] = adjacent_node
-
-
-                        else:  # If it's not open, make it so
-                            # Set the parent and the score
-                            nodes[adjacent_pos].set_parent_and_score(current_pos,
-                                                                     current_node.g,
-                                                                     end_pos)
+                        else:
+                            # Add to open list and set parent/score
+                            adjacent_node.set_parent_and_score(current_pos, current_node.g, closest_edge)
 
                             open[adjacent_pos] = adjacent_node
 
         # If a path was found, return a list of tuple coordinates
         # by tracing it backwards.
-        path_pos = nodes[end_pos].parent
+        path_pos = nodes[closest_edge].parent
         path = []
         while path_pos is not None:
             path.append(path_pos)

@@ -16,7 +16,10 @@ class SortedDictionary(dict):
     examples of sort functions, see the constructor below.
 
     """
-    def __init__(self,dictionary=None,sort_function=None, reverse=False,*args, **kw):
+
+
+
+    def __init__(self, dictionary=None, sort_function=None, reverse=False,*args, **kw):
         """Create a SortedDictionary
 
         Keyword arguments:
@@ -75,55 +78,70 @@ class SortedDictionary(dict):
             self._add_items(dictionary)
             self._sort()
 
+
+    """ Returns the sorted dictionary key at the specified index"""
     def key_at(self,index):
-        """ Returns the sorted dictionary key at the specified index"""
         return self._sort_tuples[index][0]
 
+
+    """ Returns the sorted dictinoary value at the specified index"""
     def value_at(self,index):
-        """ Returns the sorted dictinoary value at the specified index"""
         return self._sort_tuples[index][1]
 
+
+    """ Returns the sorted key/value pair at the specified index"""
     def item_at(self,index):
-        """ Returns the sorted key/value pair at the specified index"""
         return self._sort_tuples[index]
 
+
+    """ If sort criteria is not supplied, the key is sorted"""
     def _default_sort_function(self,item):
-        """ If sort criteria is not supplied, the key is sorted"""
         return item[0]
 
+
+    """ In-place sort based on sort function's results"""
     def _sort(self):
-        """ In-place sort based on sort function's results"""
         self._sort_tuples.sort(key=self._sort_function,reverse=self.reverse)
 
+
+
+    """ Adds item function and automatically re-sorts"""
     def __setitem__(self, key, value):
-        """ Adds item function and automatically re-sorts"""
         self._add_item(key,value)
         self._sort()
 
+
+
+    """ Remove and return the key/value item for the lowest sorted item
+    (Overrides default dict implementation which requires a key)"""
     def pop(self):
-        """ Remove and return the key/value item for the lowest sorted item
-        (Overrides default dict implementation which requires a key)"""
         if len(self) == 0:
             return None
         key,val = self.lowest()
         del(self[key])
         return key, val
 
+
+
+    """ Return the lowest sorted key/value pair """
     def lowest(self):
-        """ Return the lowest sorted key/value pair """
         if len(self) == 0:
             return None
         return self._sort_tuples[0]
 
+
+
+    """ Return the highest sorted key/value pair """
     def highest(self):
-        """ Return the highest sorted key/value pair """
         if len(self) == 0:
             return None
         s = self._sort_tuples
         return s[len(s)-1]
 
+
+
+    """ Handles the adding of a new item to the dict and sort list """
     def _add_item(self,key,value):
-        """ Handles the adding of a new item to the dict and sort list """
         # If a key already exists, update its entry to have the new value
         if key in self:
             super(SortedDictionary,self).__setitem__(key,value)
@@ -138,16 +156,22 @@ class SortedDictionary(dict):
             super(SortedDictionary,self).__setitem__(key,value)
             self._sort_tuples.append((key,value))
 
-    def _add_items(self,items):
+
+
         """ Appends dictionary items and re-sorts """
+    def _add_items(self,items):
         for key,val in items.iteritems():
             self._add_item(key,val)
         self._sort()
 
+
+
+    """ Empties the data structure """
     def clear(self):
-        """ Empties the data structure """
         self._dictionary = {}
         self._sort_tuples = []
+
+
 
     def fromkeys(self,seq,Value=None):
         return_dict = {}
@@ -155,8 +179,10 @@ class SortedDictionary(dict):
             return_dict[i] = Value
         return return_dict
 
+
+
+    """ Deletes an item from the dictionary/list data structure"""
     def __delitem__(self, key):
-        """ Deletes an item from the dictionary/list data structure"""
         super(SortedDictionary,self).__delitem__(key)
 
         # No need to re-sort on deletes
@@ -165,8 +191,10 @@ class SortedDictionary(dict):
                 del(self._sort_tuples[index])
                 return
 
+
+
+    """ Return object description """
     def __str__(self):
-        """ Return object description """
 
         # TODO: feel free to override this and __repr__.
         # It was used primarily for testing
@@ -176,11 +204,15 @@ class SortedDictionary(dict):
             string += "{:15s}{:15s}{:15s} \n".format(str(item[0]),str(item[1]),str(self._sort_function(item)))
         return string + ""
 
+
+
     def __repr__(self):
         return str(self.items())
 
+
+
+    """ For appending dictionary items """
     def update(self,*args,**kw):
-        """ For appending dictionary items """
         if len(args) > 0:
             self._add_items(args[0])
 

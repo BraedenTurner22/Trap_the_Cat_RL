@@ -5,9 +5,11 @@ from Node import Node
 
 class Renderer:
     START_HEX_COLOR = pygame.Color(0, 255, 0)
-    END_HEX_COLOR = pygame.Color(255, 0, 0)
+    EDGE_HEX_COLOR = pygame.Color(255, 0, 0)
     PATH_COLOR = pygame.Color(192, 192, 0)
     BARRIER_COLOR = pygame.Color(0, 0, 255)
+
+
 
     def __init__(self, graphic_size):
         self.graphic_size = graphic_size
@@ -20,9 +22,11 @@ class Renderer:
 
         self.empty_node_gfx = create_graphic(None)
         self.start_node_gfx = create_graphic(self.START_HEX_COLOR)
-        self.end_node_gfx = create_graphic(self.END_HEX_COLOR)
+        self.edge_node_gfx = create_graphic(self.EDGE_HEX_COLOR)
         self.path_node_gfx = create_graphic(self.PATH_COLOR)
         self.barrier_node_gfx = create_graphic(self.BARRIER_COLOR)
+
+
 
     def create_hex_gfx(self, color):
         hex_size = self.graphic_size
@@ -68,6 +72,8 @@ class Renderer:
         s.set_colorkey(magenta)
 
         return s
+
+
 
     def render_hex_map(self, node_map, path, screen):
 
@@ -117,7 +123,7 @@ class Renderer:
                 elif node_property == p.CAT:
                     b.blit(self.start_node_gfx, (x_blit, y_blit))
                 elif node_property == p.EDGE:
-                    b.blit(self.end_node_gfx, (x_blit, y_blit))
+                    b.blit(self.edge_node_gfx, (x_blit, y_blit))
                 elif node_property == p.WALL:
                     b.blit(self.barrier_node_gfx, (x_blit, y_blit))
                 else:
