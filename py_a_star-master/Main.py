@@ -52,13 +52,19 @@ node_map = Node_Map(map_size,
                     cat_starting_coords,
                     barrier_percentage)
 
+node_map.set_cat(cat_starting_coords)
+node_map.set_edge_property(map_size)
+
 astar = AStar()
 
 # Main Loop ================================================
 
 # render map up-front and only re-render
 # when something changes
-print("cat_coords before calling find_path:", node_map.get_cat_coords())  # Debug print
+
+# TODO
+# Figure out why cat_coords are being saved as NONE and not (5,5) starting coordinates
+# print("cat_coords before calling find_path:", node_map.get_cat_coords())  # Debug print
 path = astar.find_path(node_map.get_node_dict(),
                        node_map.get_cat_coords(),
                        node_map.get_all_edge_node_coords(),
