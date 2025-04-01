@@ -1,4 +1,4 @@
-#Trap the Cat RL
+Trap the Cat RL
 
 Current project. Re-creating one of my favorite childhood games, Trap the Cat, and creating a player agent trained through reinforcement learning to master the game.
 
